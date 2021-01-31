@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#! /usr/bin/env python
 
 import argparse
 import logging
@@ -64,12 +64,11 @@ def create_nodes(input_file, motorway_node_ids):
 
 def compute_way_lengths(ways, nodes):
     logging.info("Compute way and segment lengths")
-    compute_distance = lambda o, t: distance((o["lat"], o["lon"]), t["lat"], t["lon"]).km
+    compute_distance = lambda o, t: distance((o["lat"], o["lon"]), (t["lat"], t["lon"])).km
     for way in ways.values():
         nodes_in_way = [nodes[id] for id in way["nodes"]]
-        segment_lengths = [compute_distance(nodes_in_way[i], nodes_in_way[i+1]) for i in range(len(nodes_in_way) - 1)]
-        way["length"] = sum(segment_lengths)
-        way["segments"] = segment_lengths
+        way["segments"] = [compute_distance(nodes_in_way[i], nodes_in_way[i+1]) for i in range(len(nodes_in_way) - 1)]
+        way["length"] = sum(way["segments"])
 
 
 def store_database_to_disk(nodes, ways, database_file):
