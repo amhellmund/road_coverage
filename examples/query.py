@@ -3,7 +3,7 @@
 import argparse
 import sys
 
-from road_coverage.database import client
+from road_coverage.road_db import client
 
 
 def main(database_file):
