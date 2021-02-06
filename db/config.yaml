@@ -1,0 +1,9 @@
+mysql:
+  host: localhost
+  database: roaddb
+  user: roaddb
+  password: roaddb
+import:
+  highway:
+    motorway: 1
+    motorway_link: 2

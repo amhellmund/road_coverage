@@ -1,0 +1,4 @@
+geopy
+osmium
+mysql-connector-python
+pyyaml
