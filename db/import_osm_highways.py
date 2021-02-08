@@ -213,7 +213,7 @@ class OsmNodeHandler(SimpleHandler):
 
     def _add_node_to_cache(self, node):
         self.data_cache.append(
-            (copy.copy(node.id), node.location.lat, node.location.lon)
+            (copy.copy(node.id), node.location.lon, node.location.lat)
         )
 
     def _write_cache_to_database(self):
@@ -281,7 +281,7 @@ def _wait_for_workers(workers):
 
 class WayAggregationWorker(threading.Thread):
     QUERY = """
-        SELECT ST_X(nodes.location) as lon, ST_Y(nodes.location) as lat
+        SELECT ST_LONGITUDE(nodes.location) as lon, ST_LATITUDE(nodes.location) as lat
         FROM ways
         JOIN way_node_ids ON ways.way_id = way_node_ids.way_id
         JOIN nodes ON way_node_ids.node_id = nodes.node_id
