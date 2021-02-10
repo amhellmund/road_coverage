@@ -1,4 +1,5 @@
 geopy
 osmium
-mysql-connector-python
 pyyaml
+shapely
+mysql-connector-python

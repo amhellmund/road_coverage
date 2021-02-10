@@ -1,8 +1,19 @@
 #! /usr/bin/env python
 
-import argparse
-
 import xml.etree.ElementTree as xml
+import shapely.wkt as wkt
+
+
+def read_trajectory_from_wkt(wkt_string):
+    shape = wkt.loads(wkt_string)
+    if shape.type != "LineString":
+        raise ValueError("WKT must be a LineString, but is: {}".format(shape.type))
+    return (
+        {
+            "lon": coord[0],
+            "lat": coord[1],
+        } for coord in shape.coords
+    )
 
 
 def read_trajectory_from_osm(osm_file, way_id):
@@ -17,11 +28,3 @@ def read_trajectory_from_osm(osm_file, way_id):
             "lon": float(node.attrib.get("lon"))
         })
     return trajectory
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="OSM Way Reader")
-    parser.add_argument("osm_file", metavar="OSM_FILE", help="The OSM file")
-    parser.add_argument("way_id", metavar="WAY_ID", type=int, help="The way id")
-    args = parser.parse_args()
-    print(read_trajectory_from_osm(args.osm_file, args.way_id))

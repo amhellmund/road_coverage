@@ -5,42 +5,21 @@ import copy
 import logging
 import math
 import multiprocessing
-import mysql.connector
 import threading
-import yaml
 
-from contextlib import contextmanager
 from geopy.distance import distance
 from osmium import SimpleHandler
 
-from table_config import TABLE_CONFIGURATIONS
+from mysql_connection import load_configuration, connect_to_database
+from mysql_table_config import TABLE_CONFIGURATIONS
 
 
 def main(args):
-    config = _load_configuration(args.config_file)
-    with _connect_to_database(config["mysql"]) as dbcon:
+    config = load_configuration(args.config_file)
+    with connect_to_database(config["mysql"]) as dbcon:
         _prepare_database(dbcon, args)
         _import_osm_into_database(dbcon, config, args)
         _aggregate_ways(dbcon, config, args)
-
-
-def _load_configuration(config_file):
-    logging.info("Loading configuration from file {}".format(config_file))
-    with open(config_file, "r") as file_stream:
-        return yaml.safe_load(file_stream)
-
-
-@contextmanager
-def _connect_to_database(config, autocommit=True):
-    logging.debug("Connecting to MySQL database")
-    with mysql.connector.connect(
-        host=config["host"],
-        database=config["database"],
-        user=config["user"],
-        password=config["password"],
-        autocommit=autocommit
-    ) as dbcon:
-        yield dbcon
 
 
 def _prepare_database(dbcon, args):
@@ -298,7 +277,7 @@ class WayAggregationWorker(threading.Thread):
         self.way_segment_coverage = []
 
     def run(self):
-        with _connect_to_database(self.config["mysql"], autocommit=False) as dbcon:
+        with connect_to_database(self.config["mysql"], autocommit=False) as dbcon:
             for way_id in self.way_ids:
                 node_data = self._get_way_data(dbcon, way_id)
                 segments = self._compute_segments(node_data)
